@@ -1,6 +1,7 @@
 package szpikow;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,7 +18,7 @@ public class MeteoDataSender {
     public void send(String meteoData) {
         String password = System.getenv(Main.METEO_AUTH);
         if (password == null) {
-            System.err.println("No environmental variable METEO_AUTH with password for web service");
+            Logger.err("No environmental variable METEO_AUTH with password for web service");
             return;
         }
         HttpClient client = HttpClient.newHttpClient();
@@ -29,8 +30,10 @@ public class MeteoDataSender {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                System.out.println(response);
+                Logger.err(response.toString());
             }
+        } catch (ConnectException e) {
+            Logger.err("Could not connect to server");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
