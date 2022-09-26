@@ -13,10 +13,12 @@ public class MeteoDataSender {
         this.url = url;
     }
 
+
     public void send(String meteoData) {
-        String password = System.getenv("METEO_AUTH");
+        String password = System.getenv(Main.METEO_AUTH);
         if (password == null) {
-            throw new NullPointerException("No environmental variable METEO_AUTH with password for web service");
+            System.err.println("No environmental variable METEO_AUTH with password for web service");
+            return;
         }
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
