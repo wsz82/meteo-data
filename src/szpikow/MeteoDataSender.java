@@ -14,17 +14,22 @@ public class MeteoDataSender {
     }
 
     public void send(String meteoData) {
+        String password = System.getenv("METEO_AUTH");
+        if (password == null) {
+            throw new NullPointerException("No environmental variable METEO_AUTH with password for web service");
+        }
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
+                .setHeader("meteoauth", password)
                 .POST(HttpRequest.BodyPublishers.ofString(meteoData))
                 .build();
         try {
-            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(send);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                System.out.println(response);
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

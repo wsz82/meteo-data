@@ -7,10 +7,8 @@ import java.nio.file.*;
 import java.util.function.Consumer;
 
 import static java.nio.file.StandardWatchEventKinds.*;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 public class MeteoDataWatcher {
-    private final static String LATEST_TXT = "latest.txt";
     private final Path watchedDir;
 
     public MeteoDataWatcher(Path watchedDir) {
@@ -40,15 +38,14 @@ public class MeteoDataWatcher {
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     Path fileNamePath = ev.context();
                     String fileName = fileNamePath.toString();
-                    boolean isNotLookedFile = !LATEST_TXT.equals(fileName);
+                    boolean isNotLookedFile = !Main.WATCHED_FILE_NAME.equals(fileName);
                     if (isNotLookedFile) {
                         continue;
                     }
                     try {
                         Path child = watchedDir.resolve(fileNamePath);
                         if (!Files.probeContentType(child).equals("text/plain")) {
-                            System.err.format("New file '%s'" +
-                                    " is not a plain text file.%n", fileNamePath);
+                            System.err.format("New file '%s' is not a plain text file.%n", fileNamePath);
                             continue;
                         }
                         String fileFullDir = Path.of(watchedDir.toString(), fileName).toString();
